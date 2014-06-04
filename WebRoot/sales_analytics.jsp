@@ -46,7 +46,7 @@ try
 				<tr>
 					<td>State</td>
 					<td>Category</td>
-					<td>Age</td>
+<!-- 					<td>Age</td> -->
 				</tr>
 				<tr>
 					<td>
@@ -117,12 +117,13 @@ try
 								{
 									c_id=rs.getInt(1);
 									c_name=rs.getString(2);
-									out.println("<option value=\""+c_id+"\">"+c_name+"</option>");
+									out.println("<option value=\""+c_name+"\">"+c_name+"</option>");
 								}
 %>
 						</select>
 					</td>
-					<td>
+					<input type="hidden" name="search_Key_3" id="search_key_3" value="0">
+<!--  					<td>
 						<select name="search_key_3" id="search_key_3">
 							<option value="0" selected="selected">All Ages</option>
 							<option value="12_18">12-18</option>
@@ -130,7 +131,7 @@ try
 							<option value="45_65">45-65</option>
 							<option value="65_100">65-</option>
 						</select>
-					</td>
+					</td>  -->
 				</tr>
 			</table>
 		</td>

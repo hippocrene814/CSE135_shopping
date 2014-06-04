@@ -25,14 +25,17 @@ if(("Y").equals(need_to_connect_db))
 		
 			String role=null;
 			int userID=0;
+			String ustate=null;
 			int t=0;
 			if(rs.next())
 			{
 				userID=rs.getInt(1);
 				role=rs.getString(3);	
+				ustate=rs.getString(5);
 				session.setAttribute("name",name);
 				session.setAttribute("userID",userID);
 				session.setAttribute("role",role);
+				session.setAttribute("ustate",ustate);
 				if(role.equals("owner"))
 				{		
 					role_flag=1;

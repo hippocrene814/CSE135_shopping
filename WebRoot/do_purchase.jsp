@@ -26,6 +26,8 @@ if(session.getAttribute("name")!=null)
 	String uName=(String)session.getAttribute("name");
 	int userID  = (Integer)session.getAttribute("userID");
 	String role = (String)session.getAttribute("role");
+	String ustate = (String)session.getAttribute("ustate");
+	System.out.println(ustate);
 	String card=null;
 	int card_num=0;
 	try {card=request.getParameter("card"); }catch(Exception e){card=null;}

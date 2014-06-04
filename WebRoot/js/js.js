@@ -58,7 +58,7 @@ function doSearch()
 	{
 		if(req.readyState==4)
 		{
-			var re = req.responseText;//获取返回的内容
+			var re = req.responseText;
 			
 			$("results").innerHTML=re;
 		}
