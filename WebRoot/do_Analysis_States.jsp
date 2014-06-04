@@ -12,6 +12,7 @@ ArrayList<Integer> p_list=new ArrayList<Integer>();//product ID, 10
 ArrayList<Integer> u_list=new ArrayList<Integer>();//customer ID,20
 ArrayList<String> p_name_list=new ArrayList<String>();//product ID, 10
 ArrayList<String> u_name_list=new ArrayList<String>();//customer ID,20
+ArrayList<Integer> state_product_filter_list = new ArrayList<Integer>();
 HashMap<Integer, Integer> product_ID_amount	=	new HashMap<Integer, Integer>();
 HashMap<String, Integer> customer_ID_amount=	new HashMap<String, Integer>();
 %>
@@ -39,7 +40,6 @@ HashMap<String, Integer> customer_ID_amount=	new HashMap<String, Integer>();
 	{ 
        pos_row_str=null; pos_row=0;
        pos_col_str=null; pos_col=0;
-
 	}
 %>
 <%
@@ -107,8 +107,8 @@ try
   */
 	}
 
-	//user 
-
+	conn.setAutoCommit(false);
+	//user 	
 	rs=stmt.executeQuery(SQL_user);
 	while(rs.next())
 	{
@@ -130,7 +130,9 @@ try
 		p_list.add(p_id);
 	    p_name_list.add(p_name);
 		product_ID_amount.put(p_id,p_amount_price);
-		
+		if (!("All").equals(state)) {
+			state_product_filter_list.add(p_amount_price);
+		}
 	}
 	System.out.println("row header");
 
@@ -218,17 +220,23 @@ try
 	<%	
 /* 		SQL_amount_cell="select s.uid, s.pid, sum(s.quantity*s.price) from u_t u,p_t p, sales s where s.uid=u.id and s.pid=p.id group by s.uid, s.pid;";
 		 rs=stmt.executeQuery(SQL_amount_cell);  */
-		 conn.setAutoCommit(false);
-		 rs=stmt.executeQuery(SQL_cell);
-		 System.out.println("execute cell 11");
-		 while(rs.next())
-		 {
-			 u_name=rs.getString(1);
-			 p_id=rs.getInt(2);
-			 amount=rs.getInt(3);
-			 idPair_amount.put(u_name+"_"+p_id, amount);
+		 if (!("All").equals(state)) {
+			 for (int i = 0; i < state_product_filter_list.size(); i++) {
+			 	idPair_amount.put(u_name_list.get(0)+"_"+p_list.get(i), state_product_filter_list.get(i));
+			 }
 		 }
-		System.out.println("execute cell");
+		 else {
+		 	rs=stmt.executeQuery(SQL_cell);
+			 System.out.println("execute cell 11");
+			 while(rs.next())
+			 {
+				 u_name=rs.getString(1);
+				 p_id=rs.getInt(2);
+				 amount=rs.getInt(3);
+				 idPair_amount.put(u_name+"_"+p_id, amount);
+			 }
+			 System.out.println("execute cell");
+		 }
 	%>	 
 	<table align="center" width="100%" border="1">
 	<%	
