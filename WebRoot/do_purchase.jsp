@@ -44,6 +44,12 @@ if(session.getAttribute("name")!=null)
 					
 					String SQL_copy="INSERT INTO sales (uid, pid, quantity, price) select c.uid, c.pid, c.quantity, c.price from carts c where c.uid="+userID+";";
 					String  SQL="delete from carts where uid="+userID+";";
+
+
+					String SQL_find="select c.uid, c.pid, c.quantity, c.price from carts c where c.uid="+userID+";";
+
+
+
 					
 					try{Class.forName("org.postgresql.Driver");}catch(Exception e){System.out.println("Driver error");}
 					String url="jdbc:postgresql://127.0.0.1:5432/postgres";
