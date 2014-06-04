@@ -221,7 +221,7 @@ try
 /* 		SQL_amount_cell="select s.uid, s.pid, sum(s.quantity*s.price) from u_t u,p_t p, sales s where s.uid=u.id and s.pid=p.id group by s.uid, s.pid;";
 		 rs=stmt.executeQuery(SQL_amount_cell);  */
 		 if (!("All").equals(state)) {
-			 for (int i = 0; i < state_product_filter_list.size(); i++) {
+			 for (i = 0; i < state_product_filter_list.size(); i++) {
 			 	idPair_amount.put(u_name_list.get(0)+"_"+p_list.get(i), state_product_filter_list.get(i));
 			 }
 		 }
