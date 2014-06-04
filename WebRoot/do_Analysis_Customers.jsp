@@ -108,7 +108,7 @@ try
 	}
 
 	//user 
-
+	conn.setAutoCommit(false);
 	rs=stmt.executeQuery(SQL_user);
 	while(rs.next())
 	{
@@ -220,7 +220,6 @@ try
 	<%	
 /* 		SQL_amount_cell="select s.uid, s.pid, sum(s.quantity*s.price) from u_t u,p_t p, sales s where s.uid=u.id and s.pid=p.id group by s.uid, s.pid;";
 		 rs=stmt.executeQuery(SQL_amount_cell);  */
-		 conn.setAutoCommit(false);
 		 rs=stmt.executeQuery(SQL_cell);
 		 System.out.println("execute cell 11");
 		 while(rs.next())
