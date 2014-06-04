@@ -66,6 +66,40 @@ function doSearch()
 	req.send(null);	
 }
 
+function doSearch2()
+{
+	$("results").innerHTML="";
+	$("results").innerHTML="Caculating...<br><img src='images/bar.gif'/>";	
+	 $("results").style.display="";//show results
+	var type=$("search_key").value;
+	var url="";
+	 var pos_row=$("currentFlag_row").value;
+	 var pos_col=$("currentFlag_col").value;
+	 var state=$("search_key_1").value;
+	 var category=$("search_key_2").value;
+	 var age=$("search_key_3").value;
+	if(type==1)//customer
+	{
+		
+          url = "do_Analysis_Customers2.jsp?pos_row="+pos_row+"&&pos_col="+pos_col+"&&state="+state+"&&category="+category+"&&age="+age;
+	}
+	else//state
+	{
+		   url = "do_Analysis_States2.jsp?pos_row="+pos_row+"&&pos_col="+pos_col+"&&state="+state+"&&category="+category+"&&age="+age;
+	}
+	var req = getAjax();
+	req.open("GET", url, true);
+	req.onreadystatechange = function()
+	{
+		if(req.readyState==4)
+		{
+			var re = req.responseText;
+			
+			$("results").innerHTML=re;
+		}
+	};
+	req.send(null);	
+}
 
 function getAjax()
 {

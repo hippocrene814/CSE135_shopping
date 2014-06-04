@@ -136,7 +136,7 @@ try
 			</table>
 		</td>
 		<td>
-			<input type="button" value="Run Query" onClick="doSearch()">
+			<input type="button" value="Run Query" onClick="doSearch2()">
 		</td>
 	</tr>
 </table>
