@@ -20,6 +20,7 @@ HashMap<Integer, Integer> customer_ID_amount=	new HashMap<Integer, Integer>();
 	try { 
 			state     =	request.getParameter("state"); 
 			category  =	request.getParameter("category"); 
+			System.out.println(category);
 			age       =	request.getParameter("age"); 			
 	}
 	catch(Exception e) 
@@ -43,10 +44,10 @@ HashMap<Integer, Integer> customer_ID_amount=	new HashMap<Integer, Integer>();
 %>
 <%
 Connection	conn=null;
-Statement 	stmt,stmt2;
+Statement 	stmt;
 ResultSet 	rs=null;
 String  	SQL_1=null,SQL_2=null,SQL_ut=null, SQL_pt=null, SQL_row=null, SQL_col=null;
-String 		SQL_user = null, SQL_product = null;
+String 		SQL_user = null, SQL_product = null, SQL_cell = null;
 String  	SQL_amount_row=null,SQL_amount_col=null,SQL_amount_cell=null;
 int 		p_id=0,u_id=0;
 String		p_name=null,u_name=null;
@@ -62,7 +63,7 @@ try
 	String password="wizard";
 	conn =DriverManager.getConnection(url, user, password);
 	stmt =conn.createStatement();
-	stmt2 =conn.createStatement();
+//	stmt2 =conn.createStatement();
 	
 	System.out.println("Start customer query...");
 	long start=System.currentTimeMillis();
@@ -71,48 +72,31 @@ try
 	{
 		SQL_user = "select u.uid, u.uname, u.total from pre_users u order by u.total desc limit 20;";
 		SQL_product = "select p.pid, p.pname, p.total from pre_products p order by p.total desc limit 10;";
-
-
-		SQL_1="select id,name from users order by name asc offset "+pos_row+" limit "+show_num_row;
-		SQL_2="select id,name from products order by name asc offset "+pos_col+" limit "+show_num_col;
-		SQL_ut="insert into u_t (id, name) "+SQL_1;
-		SQL_pt="insert into p_t (id, name) "+SQL_2;
-		SQL_row="select count(*) from users";
-		SQL_col="select count(*) from products";
-		SQL_amount_row="select s.uid, sum(s.quantity*s.price) from  u_t u, sales s  where s.uid=u.id group by s.uid;";
-		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from p_t p, sales s where s.pid=p.id  group by s.pid;";
+		SQL_cell = "select u.uid, p.pid, s.total from ((select * from  pre_users order by pre_users.total desc limit 20)u full outer join (select * from pre_products order by pre_products.total desc limit 10)p on 1=1) left outer join products_users s on p.pid = s.pid and u.uid = s.uid group by u.uid, p.pid, u.total, p.total, s.total order by u.total desc, p.total desc;";
 	}
 	
 	if(("All").equals(state) && !("0").equals(category))//0,1
 	{
-		SQL_user = "select p.pname, p.total from pre_products p where p.cname = "+ category +" order by p.total desc limit 10;";
-		SQL_product = "select u.uname, u.total from categories_users u where u.cname = "+ category +" order by u.total desc limit 20;";
-
-
-
-		SQL_1="select id,name from users order by name asc offset "+pos_row+" limit "+show_num_row;
-		SQL_2="select id,name from products where cid="+category+" order by name asc offset "+pos_col+" limit "+show_num_col;
-		SQL_ut="insert into u_t (id, name) "+SQL_1;
-		SQL_pt="insert into p_t (id, name) "+SQL_2;
-		SQL_row="select count(*) from users";
-		SQL_col="select count(*) from products where cid="+category+"";
-	    SQL_amount_row="select s.uid, sum(s.quantity*s.price) from  u_t u, sales s, products p  where s.pid=p.id and p.cid="+category+" and s.uid=u.id group by s.uid;";
-		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from p_t p, sales s where s.pid=p.id  group by s.pid;";
+		SQL_user = "select u.uid, u.uname, u.total from categories_users u where u.cname = '"+ category +"' order by u.total desc limit 20;";
+		SQL_product = "select p.pid, p.pname, p.total from pre_products p where p.cname = '"+ category +"' order by p.total desc limit 10;";
+		SQL_cell = "select u.uid, p.pid, s.total as total from ((select * from  categories_users where categories_users.cname = '"+ category +"' order by categories_users.total desc limit 20)u full outer join (select * from pre_products where pre_products.cname = '"+ category +"' order by pre_products.total desc limit 10)p on 1=1) left outer join products_users s on p.pid = s.pid and u.uid = s.uid group by u.uid, p.pid, u.total, p.total, s.total order by u.total desc, p.total desc;";
 	}
+
 	if(!("All").equals(state) && ("0").equals(category))//1,0
 	{
-		SQL_1="select id,name from users where state='"+state+"' order by name asc offset "+pos_row+" limit "+show_num_row;
-		SQL_2="select id,name from products order by name asc offset "+pos_col+" limit "+show_num_col;
-		SQL_ut="insert into u_t (id, name) "+SQL_1;
-		SQL_pt="insert into p_t (id, name) "+SQL_2;
-		SQL_row="select count(*) from users where state='"+state+"' ";
-		SQL_col="select count(*) from products";
-		SQL_amount_row="select s.uid, sum(s.quantity*s.price) from  u_t u, sales s  where s.uid=u.id group by s.uid;";
-		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from p_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and u.state='"+state+"'  group by s.pid;";
+		SQL_user = "select u.uid, u.uname, u.total from pre_users u where u.state = '"+ state +"' order by u.total desc limit 20;";
+		SQL_product = "select p.pid, p.pname, p.total from products_states p where p.state = '"+ state +"' order by p.total desc limit 10;";
+		SQL_cell = "select u.uid, p.pid, s.total from ((select * from  pre_users where pre_users.state = '"+ state +"' order by pre_users.total desc limit 20) u full outer join (select * from products_states where products_states.state = '"+ state +"' order by products_states.total desc limit 10)p on 1=1) left outer join products_users s on p.pid = s.pid and u.uid = s.uid group by u.uid, p.pid, u.total, p.total, s.total order by u.total desc, p.total desc;";
 	}
+
 	if(!("All").equals(state) && !("0").equals(category))//1,1
 	{
-		SQL_1="select id,name from users where state='"+state+"' order by name asc offset "+pos_row+" limit "+show_num_row;
+		SQL_user = "select u.uid, u.uname, u.total from categories_users u where u.cname = '"+ category +"' and u.state = '"+ state +"' order by u.total desc limit 20;";
+		SQL_product = "select p.pid, p.pname, p.total from products_states p, categories c where p.cid = c.id and p.state = '"+ state +"' and c.name = '"+ category +"' order by p.total desc limit 10;";
+		SQL_cell = "select u.uid, p.pid, s.total as total from ((select * from  categories_users c where c.cname = '"+ category +"' and c.state = '"+ state +"' order by c.total desc limit 20)u full outer join (select * from products_states pr, categories c where pr.cid = c.id and c.name = '"+ category +"' and pr.state = '"+ state +"' order by pr.total desc limit 10)p on 1=1) left outer join products_users s on p.pid = s.pid and u.uid = s.uid group by u.uid, p.pid, u.total, p.total, s.total order by u.total desc, p.total desc;";
+
+
+/* 		SQL_1="select id,name from users where state='"+state+"' order by name asc offset "+pos_row+" limit "+show_num_row;
 		SQL_2="select id,name from products where cid="+category+" order by name asc offset "+pos_col+" limit "+show_num_col;
 		SQL_ut="insert into u_t (id, name) "+SQL_1;
 		SQL_pt="insert into p_t (id, name) "+SQL_2;
@@ -120,10 +104,11 @@ try
 		SQL_col="select count(*) from products where cid="+category+"";
 		SQL_amount_row="select s.uid, sum(s.quantity*s.price) from  u_t u, sales s, products p  where s.pid=p.id and p.cid="+category+" and s.uid=u.id group by s.uid;";
 		SQL_amount_col="select s.pid, sum(s.quantity*s.price) from p_t p, sales s, users u where s.pid=p.id  and s.uid=u.id and u.state='"+state+"'  group by s.pid;";
-
+  */
 	}
 
 	//user 
+
 	rs=stmt.executeQuery(SQL_user);
 	while(rs.next())
 	{
@@ -149,7 +134,8 @@ try
 		product_ID_amount.put(p_id,p_amount_price);
 		
 	}
-	
+	System.out.println("row header");
+
 %>	
 <%	
 
@@ -226,13 +212,17 @@ try
 				idPair_amount.put(u_id+"_"+p_id,0);
 			}
 		}
+		System.out.println("column header");
 	%>
 	</table>
 </td>
 <td width="88%">	
 	<%	
-		SQL_amount_cell="select s.uid, s.pid, sum(s.quantity*s.price) from u_t u,p_t p, sales s where s.uid=u.id and s.pid=p.id group by s.uid, s.pid;";
-		 rs=stmt.executeQuery(SQL_amount_cell);
+/* 		SQL_amount_cell="select s.uid, s.pid, sum(s.quantity*s.price) from u_t u,p_t p, sales s where s.uid=u.id and s.pid=p.id group by s.uid, s.pid;";
+		 rs=stmt.executeQuery(SQL_amount_cell);  */
+		 conn.setAutoCommit(false);
+		 rs=stmt.executeQuery(SQL_cell);
+		 System.out.println("execute cell 11");
 		 while(rs.next())
 		 {
 			 u_id=rs.getInt(1);
@@ -240,7 +230,7 @@ try
 			 amount=rs.getInt(3);
 			 idPair_amount.put(u_id+"_"+p_id, amount);
 		 }
-		
+		System.out.println("execute cell");
 	%>	 
 	<table align="center" width="100%" border="1">
 	<%	
@@ -271,43 +261,7 @@ try
 </td>
 </tr>
 </table>	
-<%-- 	<table width="100%">
-	<tr><td align="left">
-		<%
-			if(maxUser>(pos_row+show_num_row-1))
-			{
-		%>
-		<input type="button" value="Next 20 Customers" onClick="doNext20()">
-		<%
-			}
-			else
-			{
-		%>
-		<input type="button" value="Next 20 Customers" disabled="disabled">
-		<%
-			}
-			if(maxProduct>pos_col+show_num_col)
-			{
-		%>
-		<input type="button" value="Next 10" onClick="doNext10()">
-		<%
-			}
-			else
-			{
-		%>
-		<input type="button" value="Next 10" disabled="disabled">
-		<%
-			}
-		%>
-		</td>
-		<td align="right">
-			<%
-				out.println("Row Range:["+pos_row+","+(pos_row+show_num_row)+"]<br>");
-				out.println("Column Range:["+pos_col+","+(pos_col+show_num_col)+"]");
-			%>
-		</td>
-		</tr>
-	</table> --%>
+
 <%
 	conn.commit();
 	conn.setAutoCommit(true);

@@ -117,7 +117,7 @@ try
 								{
 									c_id=rs.getInt(1);
 									c_name=rs.getString(2);
-									out.println("<option value=\""+c_name+"\">"+c_name+"</option>");
+									out.println("<option value=\""+c_id+"\">"+c_name+"</option>");
 								}
 %>
 						</select>
