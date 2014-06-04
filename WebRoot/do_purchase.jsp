@@ -27,7 +27,6 @@ if(session.getAttribute("name")!=null)
 	int userID  = (Integer)session.getAttribute("userID");
 	String role = (String)session.getAttribute("role");
 	String ustate = (String)session.getAttribute("ustate");
-	System.out.println(ustate);
 	String card=null;
 	int card_num=0;
 	try {card=request.getParameter("card"); }catch(Exception e){card=null;}
@@ -39,15 +38,24 @@ if(session.getAttribute("name")!=null)
 	
 				Connection conn=null;
 				Statement stmt=null;
+				Statement stmt2=null;
+				ResultSet 	rs=null;
 				try
 				{
 					
 					String SQL_copy="INSERT INTO sales (uid, pid, quantity, price) select c.uid, c.pid, c.quantity, c.price from carts c where c.uid="+userID+";";
 					String  SQL="delete from carts where uid="+userID+";";
 
-
 					String SQL_find="select c.uid, c.pid, c.quantity, c.price from carts c where c.uid="+userID+";";
 
+					String SQL_update_pu=null;
+					String SQL_update_ps=null;
+					String SQL_update_cu=null;
+					String SQL_update_cs=null;
+
+					String SQL_update_p=null;
+					String SQL_update_u=null;
+					String SQL_update_s=null;
 
 
 					
@@ -57,12 +65,49 @@ if(session.getAttribute("name")!=null)
 					String password="wizard";
 					conn =DriverManager.getConnection(url, user, password);
 					stmt =conn.createStatement();
-				
+					stmt2 = conn.createStatement();
 					try{
 					
 							conn.setAutoCommit(false);
 							/**record log,i.e., sales table**/
 							stmt.execute(SQL_copy);
+
+							int sum = 0;
+							int tmp = 0;
+							int p_id;
+							int p_qty, p_price;
+							rs=stmt.executeQuery(SQL_find);
+							while(rs.next())
+							{
+								p_id=rs.getInt(2);
+								System.out.println(p_id);
+								p_qty=rs.getInt(3);
+								System.out.println(p_qty);
+								p_price=rs.getInt(4);
+								System.out.println(p_price);
+								tmp = p_qty * p_price;
+								System.out.println(tmp);
+								sum = sum + tmp;
+								System.out.println(sum);
+								SQL_update_pu="update products_users set total = total + "+tmp+" where pid = "+p_id+" and uid ="+userID+";";
+								stmt2.executeUpdate(SQL_update_pu);
+								SQL_update_ps="update products_states set total = total + "+tmp+" where pid = "+p_id+" and state = '"+ustate+"';";
+								stmt2.executeUpdate(SQL_update_ps);
+								SQL_update_cu="update categories_users set total = total + "+tmp+" where cname = (select name from categories where id = (select cid from products where id = "+p_id+"))";
+								stmt2.executeUpdate(SQL_update_cu);
+								SQL_update_cs="update categories_states set total = total + "+tmp+" where state = '"+ustate+"' and cname = (select name from categories where id = (select cid from products where id = "+p_id+"))";
+								stmt2.executeUpdate(SQL_update_cs);
+								SQL_update_p="update pre_products set total = total + "+tmp+" where pid = "+p_id+";";
+								stmt2.executeUpdate(SQL_update_p);
+							}
+
+							SQL_update_u="update pre_users set total = total + "+sum+" where uid ="+userID+";";
+							stmt.executeUpdate(SQL_update_u);
+							System.out.println("16");
+							SQL_update_s="update pre_states set total = total + "+sum+" where state = '"+ustate+"';";
+							stmt.executeUpdate(SQL_update_s);
+							System.out.println("17");
+
 							stmt.execute(SQL);
 							conn.commit();
 							
@@ -72,6 +117,8 @@ if(session.getAttribute("name")!=null)
 					}
 					catch(Exception e)
 					{
+						out.println("1");
+						System.out.print(e);
 						out.println("Fail! Please try again <a href=\"purchase.jsp\" target=\"_self\">Purchase page</a>.<br><br>");
 						
 					}
@@ -85,12 +132,13 @@ if(session.getAttribute("name")!=null)
 			}
 			else
 			{
-			
+				out.println("2");
 				out.println("Fail! Please input valid credit card numnber.  <br> Please <a href=\"purchase.jsp\" target=\"_self\">buy it</a> again.");
 			}
 		}
 	catch(Exception e) 
 	{ 
+		out.println("3");
 		out.println("Fail! Please input valid credit card numnber.  <br> Please <a href=\"purchase.jsp\" target=\"_self\">buy it</a> again.");
 	}
 %>
