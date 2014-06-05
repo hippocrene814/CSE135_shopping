@@ -28,6 +28,7 @@ if(session.getAttribute("name")!=null)
 	String role = (String)session.getAttribute("role");
 	String ustate = (String)session.getAttribute("ustate");
 	String card=null;
+	long start, end;
 	int card_num=0;
 	try {card=request.getParameter("card"); }catch(Exception e){card=null;}
 	try
@@ -67,7 +68,10 @@ if(session.getAttribute("name")!=null)
 					stmt =conn.createStatement();
 					stmt2 = conn.createStatement();
 					try{
-					
+						
+							System.out.println("Start customer query...");
+							start=System.currentTimeMillis();
+							
 							conn.setAutoCommit(false);
 							/**record log,i.e., sales table**/
 							stmt.execute(SQL_copy);
@@ -80,15 +84,10 @@ if(session.getAttribute("name")!=null)
 							while(rs.next())
 							{
 								p_id=rs.getInt(2);
-								System.out.println(p_id);
 								p_qty=rs.getInt(3);
-								System.out.println(p_qty);
 								p_price=rs.getInt(4);
-								System.out.println(p_price);
 								tmp = p_qty * p_price;
-								System.out.println(tmp);
 								sum = sum + tmp;
-								System.out.println(sum);
 								SQL_update_pu="update products_users set total = total + "+tmp+" where pid = "+p_id+" and uid ="+userID+";";
 								stmt2.executeUpdate(SQL_update_pu);
 								SQL_update_ps="update products_states set total = total + "+tmp+" where pid = "+p_id+" and state = '"+ustate+"';";
@@ -103,10 +102,11 @@ if(session.getAttribute("name")!=null)
 
 							SQL_update_u="update pre_users set total = total + "+sum+" where uid ="+userID+";";
 							stmt.executeUpdate(SQL_update_u);
-							System.out.println("16");
 							SQL_update_s="update pre_states set total = total + "+sum+" where state = '"+ustate+"';";
 							stmt.executeUpdate(SQL_update_s);
-							System.out.println("17");
+
+							end=System.currentTimeMillis();
+	    					System.out.println("Finish, running time:"+(end-start)+"ms");
 
 							stmt.execute(SQL);
 							conn.commit();
